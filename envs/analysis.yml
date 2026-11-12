@@ -1,19 +1,13 @@
-name: coastal-amr-original-analysis
-channels: [conda-forge, bioconda]
+name: coastal-amr-report
+channels: [conda-forge]
 dependencies:
   - python=3.12
-  - r-base=4.5.2
-  - r-tidyverse
-  - r-vegan=2.7_1
-  - r-permute=0.9_8
-  - r-ggsci
-  - r-patchwork
-  - r-openxlsx
-  - r-ggh4x
-  - r-circlize
-  - r-venndiagram=1.7.3
-  - bioconductor-complexheatmap
-# This is an unresolved dependency specification, not a release lock.
-# Publication versions (including development R packages) remain in Table S3.
-# Live Entrez lookups are disabled; networks require a frozen Taxon/Domain map.
-# Original Cytoscape/RCy3 export is optional and requires a running application.
+  - r-base=4.5
+  - r-vegan=2.7_5
+  - r-permute=0.9_10
+  - r-ggplot2=4.0.3
+  - r-patchwork=1.3.2
+  - r-readr=2.2.0
+  - r-dplyr=1.2.1
+  - r-tidyr=1.3.2
+  - r-venndiagram=1.8.2

@@ -1,55 +1,40 @@
-# Development validation — 12 November 2026
+# Validation scope — 12 November 2026
+
+The rebuilt workflow is tested against methods and synthetic truth, without
+asserting historical result totals or retaining the former scripts.
 
 Passed locally:
 
-* Eighteen Python method/integration tests (`python -m unittest discover -s tests -v`).
-* Python compilation of `bin/` and `tests/`.
-* Full Nextflow synthetic wiring run under **25.04.8**, the version recorded
-  in Table S3: all 17 process tasks completed.
-* Full synthetic wiring run under Nextflow 25.10.0, plus a separate screening
-  synthetic run after adding the reference-verification dependency.
-* Live ENA metadata retrieval for PRJEB75359 and bijective matching of all
-  60 run sample titles to all 60 canonical filters.
-* Offline resolution of the saved ENA report: all runs paired, mate order and
-  checksum format validated. File checksums are checked only on actual download.
+* Nextflow 25.04.8 full wiring run: nineteen task instances completed with stubs.
+* Nine Python method tests, including the study/run crosswalk, atomic MD5
+  rejection, custom Kraken scoring, pair-name handling, rank-aware taxonomy,
+  pooling/denominators, missing-filter rejection, BAM overlap coverage and
+  unverifiable SNP-target exclusion.
+* A real AMR++ SNP verification test containing five mutant and five wild-type
+  reads: confirmed count five from baseline ten. The pinned upstream scorer
+  ran using the socket-free serial scheduler.
+* A real synthetic paired-read tool chain: FastQC, fastp, MultiQC, BWA-MEM,
+  SAMtools duplicate removal/counts/coverage, Bowtie2, Kraken2 with a newly built
+  tiny database, taxonomy linkage, Bracken distribution construction and
+  species estimation. Two qualifying targets and 122 unique query/reference
+  associations per catalogue were recovered, with two species estimated.
+* MEGARes 3.00 automatic retrieval and resource preparation with local CARPDM/
+  SNP inputs, frozen taxonomy and the NC_024711.1 reference retrieved from NCBI.
+* Complete synthetic 60-filter aggregation and R reporting with default 9999
+  requested permutations. All eleven required PDFs and thirty-three TSV table
+  components/additional summaries were generated. Tests checked all six saved
+  permutation matrices remain within date, the expected model/contrast sets and
+  the three-test environmental BH family.
+* Both declared Conda specifications solve on linux-64. Explicit resolved
+  package manifests are included under envs/. R packages and the read-processing
+  tools were exercised locally; Kraken2 and Bracken were compiled from their
+  official releases for the tool smoke test.
+* A second full report with no qualifying CARPDM targets completed, retaining
+  blank completeness percentages and informative empty screening panels.
 
-Not executed or validated:
-
-* Production sequencing downloads, alignment, taxonomic classification, real
-  SAMtools depth/mpileup compatibility or original AMR++ execution.
-* Conda solving, container builds, Slurm execution or performance estimates.
-* Original R analyses, figures, Cytoscape layouts or final Excel packaging.
-* Numerical agreement with published screening, taxonomy or statistical results.
-* Remote GitHub push (no authenticated GitHub session).
-
-Synthetic wiring checks deliberately replace scientific processes with fixtures
-and generate no manuscript figures or tables. They validate dataflow and file
-staging, not scientific correctness. See `OUTPUT_STATUS.md` for remaining work.
-
-## Uploaded-script integration checks
-
-Passed: scoring equivalence against the original embedded Python block; report
-clade counts and names on a synthetic taxonomy; source archive SHA256 checks;
-60-filter R-input conversion using synthetic runtime totals. All uploaded Bash
-scripts and the new taxonomy adapter passed bash -n. The FROM_TABLES workflow
-completed a three-task synthetic wiring run under Nextflow 25.04.8.
-
-R and the production bioinformatics tools are unavailable in this workspace.
-The portable R changes have not been executed or parsed with R locally. A CI
-R syntax job was added but has not been run on GitHub. Dependency specifications
-remain unresolved; no claim of numerical manuscript reproduction is made.
-
-## Additional AMR evidence checks
-
-Four more tests pass: launch argument preservation, duplicate-flag policy
-differences, original AWK breadth-rounding equivalence and complete unique BAM
-manifest validation. No real AMR++ or BAM counting was executed. The newly
-received launch script confirms requested flags but not SNP effects on the
-rebuilt matrix. See AMR_EXECUTION.md.
-
-Nextflow 25.04.8 also completed the two-task FROM_AMR_BAMS synthetic wiring
-check and the main full-mode synthetic workflow after these additions. These
-checks execute fixture stubs, not production alignments/count reconstruction.
-
-Resumed-run report filename collisions found during testing were addressed with
-timestamped execution/trace/timeline/DAG filenames, preserving each run report.
+The complete multi-terabyte ENA production dataset has not been executed here.
+The wiring run uses stubs and is not a raw-read scientific validation run. Real
+alignment/SNP/classification tests use deliberately small synthetic data. A
+successful Conda solve does not prove every package archive can be downloaded
+on every host. Keep runtime versions/checksums and inspect the first production
+run before interpreting study-specific outcomes.

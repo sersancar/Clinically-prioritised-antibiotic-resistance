@@ -1,101 +1,118 @@
 # Clinically prioritised antibiotic resistance genes identify One Health surveillance hotspots along a coastal wastewater-to-beach gradient
 
-Nextflow DSL2 workflow for the One Health Short Communication using ENA study
-PRJEB75359. The design comprises 60 filter libraries from 20 site-date samples
-across recreational beaches A/C, untreated wastewater discharge B and
-agricultural freshwater input D.
+A complete Nextflow DSL2 workflow that downloads the PRJEB75359 paired raw reads
+from ENA and generates resistance measurements, taxonomic affiliations,
+statistical results, supplementary tables and figures from the paper's methods.
+Figure 1A is excluded. Historical scripts and historical numerical results are
+not needed by the workflow.
 
-**Status: development; not yet a complete reproducibility release.** ENA
-retrieval, QC, CARPDM/crAssphage screening and read-weighted pooling are
-implemented. The supplied custom Kraken2/Bracken code and R scripts now have
-portable execution paths. Effective AMR++ configuration/resources, ARG/taxonomy joins, final
-packaging and numerical validation are still required to reproduce all Figures
-and Tables S1–S12. Full mode fails early when required adapters are missing.
-
-## Requirements
-
-Nextflow >=25.04.8, Java 17 or later (Java 21 recommended), Python >=3.10 and
-Conda for `-profile conda`. See Table S3-derived
-`metadata/software_provenance.tsv`. Tool versions are declared in
-`envs/reads.yml`; platform-specific dependency resolution is not yet tested.
-R dependencies are declared separately in `envs/analysis.yml` and remain
-unresolved. See [original-code integration](docs/ORIGINAL_CODE_INTEGRATION.md)
-for the archived scripts, portable changes and numbering crosswalk.
-
-The supplied AMR++ launcher confirms SNP screening and deduplication switches.
-See [AMR_EXECUTION.md](docs/AMR_EXECUTION.md) for its revision-checked external
-launcher and the `FROM_AMR_BAMS` entry point. The two uploaded BAM-count scripts
-use different duplicate-flag policies; an explicit policy is required.
+The bundled metadata select 60 filter libraries from 20 biological site–date
+samples. The three filters are pooled before abundance normalisation; they are
+not treated as independent biological replicates.
 
 ## Run
 
-All 60 ENA run mappings are resolved from descriptive sample titles (see
-`metadata/ENA_MAPPING.md`). Supply the remaining verified inputs listed in
-[INPUTS_NEEDED.md](docs/INPUTS_NEEDED.md), including original references with
-SHA256 values in a copy of `assets/reference_lock.example.json`.
+Install Nextflow >=25.04.8, Java 17–21, Python >=3.10, Git and Conda/Mamba. Run
+from this repository:
 
 ```bash
-# Validate metadata without downloading reads.
-python -c "import sys; sys.path.insert(0,'bin'); from ena_manifest import *; validate_filters(read_tsv('metadata/filters.tsv'), require_runs=False)"
-
-# Resolve accession selection; a verified mapping is mandatory.
-python bin/ena_manifest.py --filters metadata/filters.tsv --outdir ena
-
-# Test workflow wiring with synthetic reads; produces no manuscript results.
-nextflow run main.nf -profile test --mode screening -stub-run --outdir results/stub
-
-# Real screening, when reference provenance and original options are confirmed.
-nextflow run main.nf -profile conda --mode screening \
-  --carpdm_fasta /absolute/path/carpdm.fa \
-  --crass_fasta /absolute/path/crassphage_NC_024711.1.fasta \
-  --reference_lock /absolute/path/reference_lock.json \
-  --outdir results/screening -resume
-
-# Full workflow: requires implemented original-code adapters.
-nextflow run main.nf -profile conda,slurm --mode full \
-  --carpdm_fasta /absolute/path/carpdm.fa \
-  --crass_fasta /absolute/path/crassphage_NC_024711.1.fasta \
-  --reference_lock /absolute/path/reference_lock.json \
+nextflow run main.nf -profile conda \
+  --carpdm_fasta /absolute/path/card_genes.fna \
   --kraken_db /absolute/path/k2_standard_20251015 \
-  --amr_adapter /absolute/path/amr_original.sh \
-  --taxonomy_adapter /absolute/path/taxonomy_original.sh \
-  --report_adapter /absolute/path/manuscript_original.sh \
-  --outdir results/full -resume
+  --taxonomy_dir /absolute/path/matching_taxdump \
+  --outdir results -resume
 ```
 
-Raw data are large. No production reads have been downloaded or analyses
-executed as part of preparing this repository. Keep the Nextflow work directory
-for resumption; BAMs and QC reads are retained there and are not published by
-default. `--mode download` resolves and downloads raw reads into the work
-directory only. Execution reports and trace files go under `outdir/provenance`.
+For Slurm use `-profile conda,slurm`; set your partition/account in a local
+Nextflow configuration. Kraken2 requests 128 GB by default; adjust with
+`--kraken_memory '64 GB'` or a suitable value for your database/host.
+The Slurm profile keeps reference preparation and network downloads on the
+controller host, while computational stages run as cluster jobs.
 
-## Outputs and methods
+Required biological reference inputs:
 
-The `FROM_TABLES` entry point reruns the original R analysis and plots, plus
-optional offline networks, from prepared inputs. See
-[ORIGINAL_CODE_INTEGRATION.md](docs/ORIGINAL_CODE_INTEGRATION.md) for its command
-and schemas. Outputs retain the source scripts' numbering pending packaging.
+* The **CARPDM nucleotide FASTA**, with unique reference identifiers. Gene labels
+  are read from its final pipe-delimited field; editable class annotations are
+  in `metadata/carpdm_gene_classes.tsv`. Unmapped labels remain explicit.
+* A **Kraken2 database** and its Bracken `database150mers.kmer_distrib` file.
+* The corresponding frozen **NCBI nodes.dmp and names.dmp**. The workflow checks
+  the database root or its `taxonomy/` subdirectory automatically; supply
+  `--taxonomy_dir` when those files are elsewhere.
 
-Screening produces per-filter all-reference measurements and pooled
-`carpdm.biological.tsv` / `crass.biological.tsv`, with separate primary and
-relaxed rules. The report adapter must create Figures 1–2 and S1–S8 plus
-Tables S1–S12. Table S2 is curated historical evidence; measured environmental
-metadata and the schematic are supplied assets. Their provenance is retained
-instead of pretending they can be computed from reads.
+MEGARes 3.00, crAssphage NC_024711.1 and the pinned AMR++ SNP verification
+resources are retrieved automatically. To reuse local resources, set
+`--megares_fasta`, `--crass_fasta` and/or `--snp_bundle`. The latter must contain
+`SNP_Verification.py`, `config.ini` and `data/SNPinfo.fasta` plus its Python modules.
+Resource checksums and runtime tool versions are recorded. Use the same frozen
+Kraken2/taxonomy resource set across runs.
 
-See [ADAPTERS.md](docs/ADAPTERS.md) for original-code interfaces,
-[REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md) for analytical rules and release
-checks, and `assets/expected_outputs.json` for the report contract.
+## Analysis stages
 
-## Development checks
+1. Resolve the explicit ENA run crosswalk, require paired FASTQs and validate
+   downloaded MD5 checksums. Single-run filters use symlinks; multiple runs are
+   concatenated in matched mate order.
+2. FastQC, fastp (Q20, at most 20% unqualified bases, at most five Ns, length
+   >=50 bp) and MultiQC.
+3. Broad profiling: BWA-MEM alignment to MEGARes, SAMtools duplicate removal,
+   MAPQ >=30, exact reference breadth >=80%, and pinned AMR++ SNP verification.
+   These run as native Nextflow stages. No nested Nextflow controller is needed.
+4. CARPDM Bowtie2 screening: very-sensitive end-to-end alignment, proper pairs,
+   MAPQ >=30, breadth >=80% and full-reference mean depth >=5. Relaxed screening
+   removes only the depth threshold. Overlapping read ends count separately.
+5. Paired Kraken2 classification, the paper's custom 0.2 k-mer support rule,
+   frozen rank-aware annotation and Bracken species re-estimation (150 bp,
+   minimum ten reads). Unique query/reference associations provide exploratory
+   taxonomic affiliations and completeness summaries.
+6. crAssphage mapping/coverage, biological-sample pooling, RPM and reference-level
+   RPKM, recurrence and filter-support summaries.
+7. Hellinger/Bray–Curtis ordinations, date-blocked PERMANOVA and dispersion,
+   Friedman and exact paired tests, sequencing-depth correlations, sampling/
+   length sensitivities, and partial RDAs conditioned on site and date.
+8. Batch PDF/PNG figures and TSV tables. Persistent above-median affiliation
+   networks are drawn directly in R; Cytoscape node/edge import tables are also
+   exported. An open Cytoscape application is unnecessary.
+
+## Results
+
+`results/manuscript/` contains:
+
+* `figures/`: Figure 1B, Figure 2 and Figures S1–S8. Figure S4 has separate gene
+  heatmap and shared-date overlap PDFs.
+* `tables/`: Table S1–S12 components, additional community profiles, network
+  nodes/edges and diversity outputs. TSV components preserve different schemas
+  without forcing them into one oversized workbook.
+* `plot_data/`: plotted values, permutation matrices and environmental models.
+* `provenance/`, `sessionInfo.txt` and `INTERPRETATION.txt`.
+
+QC reports and Nextflow execution/trace/DAG reports are written separately under
+`results/`. Raw/QC reads and BAMs are retained in `work/` for resumption. Keep
+that directory while using `-resume`. Plan storage from the ENA `fastq_bytes`
+metadata plus the additional QC/BAM/intermediate files.
+
+Table S2 is supplied historical context; environmental measurements are supplied
+metadata. They cannot be inferred from sequencing reads. Results may differ from
+the paper because of database/tool revisions, exact coverage screening, corrected
+processing and permutation sampling. No historical result is inserted into a
+computed output. See [METHODS.md](docs/METHODS.md) and
+[OUTPUTS.md](docs/OUTPUTS.md) for definitions and interpretation.
+
+## Validation
+
+The workflow wiring, a synthetic paired-read tool chain, a known SNP/wild-type
+mixture, pooling/taxonomy tests and a complete synthetic 60-filter R report are
+covered by tests. The full multi-terabyte ENA study has not been executed here.
 
 ```bash
+# With the reads environment active:
 python -m unittest discover -s tests -v
-python -m compileall -q bin tests
-nextflow run main.nf -profile test --mode screening -stub-run --outdir results/stub
+bash tests/read_smoke.sh /absolute/path/scratch/read-smoke
+
+# Wiring only; uses stubs and produces no scientific results:
+nextflow run main.nf -profile test -stub-run --outdir results/stub
 ```
 
-No software licence has yet been selected. Publication requires the authors'
-licence choice, authenticated GitHub access, original-code integration and
-numerical/graphical validation. This development repository must not yet be
-described as the code used to generate the manuscript results.
+The test suite's known-allele check uses `AMR_SNP_BUNDLE=/path/to/pinned/verifier`.
+See [VALIDATION.md](docs/VALIDATION.md) for tested scope and limits.
+
+To replace the earlier development checkout, follow [UPDATING.md](docs/UPDATING.md).
+The downloadable archive includes a checked updater for the existing repository.

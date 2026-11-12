@@ -26,7 +26,7 @@ python bin/map_ena_titles.py --filters metadata/filters.tsv \
   --ena-report metadata/ena_PRJEB75359_2026-11-12.tsv --output filters.remapped.tsv
 ```
 
-Runtime resolution rechecks study membership and FASTQ checksums. To use the
-snapshot explicitly, supply `--ena_report metadata/ena_PRJEB75359_2026-11-12.tsv`
-to Nextflow or `--ena-report` to the Python resolver. The ENA report is metadata,
+Runtime resolution rechecks study membership and FASTQ checksums. To check the snapshot explicitly, supply
+`--ena-report metadata/ena_PRJEB75359_2026-11-12.tsv` to the Python resolver.
+The Nextflow workflow resolves the live report and retains it in provenance. The ENA report is metadata,
 not a download of the sequencing reads.
