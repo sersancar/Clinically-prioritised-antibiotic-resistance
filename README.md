@@ -113,6 +113,3 @@ nextflow run main.nf -profile test -stub-run --outdir results/stub
 
 The test suite's known-allele check uses `AMR_SNP_BUNDLE=/path/to/pinned/verifier`.
 See [VALIDATION.md](docs/VALIDATION.md) for tested scope and limits.
-
-To replace the earlier development checkout, follow [UPDATING.md](docs/UPDATING.md).
-The downloadable archive includes a checked updater for the existing repository.
