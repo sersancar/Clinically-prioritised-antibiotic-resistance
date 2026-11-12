@@ -1,0 +1,18 @@
+Previous.study	Site.label.in.previous.paper	Site.label.in.this.study	Principal.findings.at.that.location	Relevance.to.the.present.study
+Mahon et al. 2017	Beach A	A	NDM-producing K. pneumoniae detected in seawater.	Identifies A as a previously described coastal AMR exposure setting.
+Mahon et al. 2017	Sewage outflow	B	NDM-producing E. coli detected; isolates were linked by PFGE to freshwater and clinical isolates.	Supports B as a clinically relevant wastewater-associated hotspot.
+Mahon et al. 2017	Beach B 	C	NDM-producing K. pneumoniae detected in seawater.	Identifies C as a previously described coastal AMR exposure setting.
+Mahon et al. 2017	Stream B	D	NDM-producing E. coli detected; isolates were linked by PFGE to freshwater and clinical isolates.	Supports D as a conduit for clinically relevant AMR into the coastal system.
+Hooban et al. 2021	Beach E	A	No CPE detected.   	Suggests temporal variability at the same recreational site.
+Hooban et al. 2022	Beach E	A	Low-to-moderate faecal indicator counts (coliforms 51–789; E. coli <10–160 MPN/100 mL).	Supports A as a lower-impact beach site.
+Hooban et al. 2022	Beach E1	C	Low faecal indicator counts (52 coliforms; 10 E. coli MPN/100 mL).	Supports C as a comparatively low-impact beach site.
+Hooban et al. 2022	Beach E2	B	Extremely elevated faecal indicator counts (>24,196 coliforms and >24,196 E. coli MPN/100 mL).	Supports B as the most contamination-impacted node.
+Abbreviations				
+CPE: carbapenemase-producing Enterobacterales				
+MPN: most probable number				
+NDM: New Delhi metallo-β-lactamase				
+PFGE: pulsed-field gel electrophoresis				
+Studies				
+Mahon BM, Brehony C, McGrath E, Killeen J, Cormican M, Hickey P, Keane S, Hanahoe B, Dolan A, Morris D. Indistinguishable NDM-producing Escherichia coli isolated from recreational waters, sewage, and a clinical specimen in Ireland, 2016 to 2017. Euro Surveill. 2017 Apr 13;22(15):30513. doi: 10.2807/1560-7917.ES.2017.22.15.30513. 				
+Hooban B, Fitzhenry K, Cahill N, Joyce A, O' Connor L, Bray JE, Brisse S, Passet V, Abbas Syed R, Cormican M, Morris D. A Point Prevalence Survey of Antibiotic Resistance in the Irish Environment, 2018-2019. Environ Int. 2021 Jul;152:106466. doi: 10.1016/j.envint.2021.106466. 				
+Hooban B, Fitzhenry K, O'Connor L, Miliotis G, Joyce A, Chueiri A, Farrell ML, DeLappe N, Tuohy A, Cormican M, Morris D. A Longitudinal Survey of Antibiotic-Resistant Enterobacterales in the Irish Environment, 2019-2020. Sci Total Environ. 2022 Jul 1;828:154488. doi: 10.1016/j.scitotenv.2022.154488.				

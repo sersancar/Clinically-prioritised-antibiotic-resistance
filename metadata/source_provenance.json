@@ -1,0 +1,6 @@
+{
+  "source": "Supplementary_Tables.xlsx",
+  "sha256": "83848a13ce77cfd7274659ed6f005d41f67d971bd70c8c898ce5d624f784fc29",
+  "filter_metadata_sheet": "S1_Sample_metadata",
+  "source_note": "Published read-end totals are comparison values, never runtime normalisation denominators. ENA run mapping was resolved bijectively from descriptive sample titles; see ENA_MAPPING.md."
+}

@@ -1,0 +1,4 @@
+{
+  "carpdm": {"sha256": "REPLACE_WITH_SHA256_OF_ORIGINAL_FASTA", "source": "Exact publication-associated catalogue used in the manuscript"},
+  "crass": {"sha256": "REPLACE_WITH_SHA256_OF_ORIGINAL_FASTA", "source": "NC_024711.1"}
+}

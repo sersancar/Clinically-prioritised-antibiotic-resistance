@@ -1,0 +1,72 @@
+[
+  {
+    "uploaded_filename": "ARG_Tax_linkage.sh",
+    "archived_path": "provenance/original_scripts/ARG_Tax_linkage.sh",
+    "sha256": "d4f2922f6c64994de34629ced77c0c4ebefa48686660cf81c8acabd6c2e27d9c"
+  },
+  {
+    "uploaded_filename": "CARDGenes.sh",
+    "archived_path": "provenance/original_scripts/CARDGenes.sh",
+    "sha256": "68ed62a2e408efda6c8c2855a6f801bf6426df2f0b7fd4e83e493bf16e2e1174"
+  },
+  {
+    "uploaded_filename": "arestAnalysis_revised(3).R",
+    "archived_path": "provenance/original_scripts/arestAnalysis_revised.R",
+    "sha256": "8ff76f39096d4eae12fbd732399d0c00a57b503ae8cfb5af95507321312b8970"
+  },
+  {
+    "uploaded_filename": "arest_FigureS3_networks_filtered(3).R",
+    "archived_path": "provenance/original_scripts/arest_FigureS3_networks_filtered.R",
+    "sha256": "c11bdf3b43415a7f81d481eafb7056a3dfbe47dd66e27cf6ea12cac2e455e41d"
+  },
+  {
+    "uploaded_filename": "arest_final_supplementary_tables(2).R",
+    "archived_path": "provenance/original_scripts/arest_final_supplementary_tables.R",
+    "sha256": "ab57af7dd398d19a8c046da900b0ec2a151e357dd05f63d39cdf0c0035361e61"
+  },
+  {
+    "uploaded_filename": "arest_revision_figures(3).R",
+    "archived_path": "provenance/original_scripts/arest_revision_figures.R",
+    "sha256": "23a5a3c76f45184a9ff791a168bebfbae35f1bba202f82cd7ffde727fbc960a4"
+  },
+  {
+    "uploaded_filename": "bracken.sh",
+    "archived_path": "provenance/original_scripts/bracken.sh",
+    "sha256": "cade7936f000ebcea875fae778ff45ef75c9287dc7794961f7683f4a292c89cf"
+  },
+  {
+    "uploaded_filename": "build_bracken_species_matrix.sh",
+    "archived_path": "provenance/original_scripts/build_bracken_species_matrix.sh",
+    "sha256": "f98fda4512479cb6d3562fb5302bba8c60853beb3a06ed0b10eb69bbffee76f6"
+  },
+  {
+    "uploaded_filename": "build_dedup_AMR_matrix.sh",
+    "archived_path": "provenance/original_scripts/build_dedup_AMR_matrix.sh",
+    "sha256": "36d84db67528957277d77ed1f19b79f40c1b12e4d2548f306fcd213b7692f47e"
+  },
+  {
+    "uploaded_filename": "kraken2Filter.sh",
+    "archived_path": "provenance/original_scripts/kraken2Filter.sh",
+    "sha256": "d0c7564350965182416007e0927175d6cd301224da6bad12374acd03258ea7fd"
+  },
+  {
+    "uploaded_filename": "link_CARD_kraken2(1).sh",
+    "archived_path": "provenance/original_scripts/link_CARD_kraken2.sh",
+    "sha256": "1943bc4a8885087f0c769eca7e534d759185dee36081f31eea20a970e570dea7"
+  },
+  {
+    "uploaded_filename": "CARDGenes(1).sh",
+    "archived_path": "provenance/original_scripts/CARDGenes_ncahill.sh",
+    "sha256": "4b259e40a315f3bc5913a2c0893331bcf6e351ce2bb16da7b5aa892c8d230077"
+  },
+  {
+    "uploaded_filename": "AMR++(1).sh",
+    "archived_path": "provenance/original_scripts/AMRplusplus_launch_ncahill.sh",
+    "sha256": "7286b9d4de50af88ba93ccff0d1bcc915764e40ff5de534ee458ee3cae8fb577"
+  },
+  {
+    "uploaded_filename": "build_dedup_AMR_matrix_ncahill.sh",
+    "archived_path": "provenance/original_scripts/build_dedup_AMR_matrix_ncahill.sh",
+    "sha256": "bf46b0142f8cc33897dd2f13d769e002c6cf69433c83e0991806af67fd6027d9"
+  }
+]

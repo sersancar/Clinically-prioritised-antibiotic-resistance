@@ -1,0 +1,13 @@
+name: coastal-amr-reads
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.12
+  - fastp=1.3.3
+  - fastqc=0.12.1
+  - multiqc=1.32
+  - bowtie2=2.5.5
+  - samtools=1.8
+  - kraken2=2.1.6
+  - bracken=3.0.1
+# Versions transcribed from Table S3. A solve/lock must be verified on the target
+# platform; this YAML is not a resolved lockfile or proof of availability.
