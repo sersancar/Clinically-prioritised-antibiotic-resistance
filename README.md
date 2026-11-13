@@ -27,8 +27,6 @@ repository:
 
 ```bash
 nextflow run main.nf -profile conda \
-  --kraken_db /absolute/path/k2_standard_20251015 \
-  --taxonomy_dir /absolute/path/matching_taxdump \
   --outdir results -resume
 ```
 
@@ -38,17 +36,44 @@ Nextflow configuration. Kraken2 requests 128 GB by default; adjust with
 The Slurm profile keeps reference preparation and network downloads on the
 controller host, while computational stages run as cluster jobs.
 
-Required biological reference inputs:
+Reference resources:
 
 * The bundled **CARPDM nucleotide FASTA** at `data/carpdm_genes.fna.gz`, with
   unique reference identifiers. Override with `--carpdm_fasta /path/to/file.fna.gz`
   if needed; plain FASTA also works. Gene labels are read from the final
   pipe-delimited field; editable class annotations are in
   `data/carpdm_gene_classes.tsv`. Unmapped labels remain explicit.
-* A **Kraken2 database** and its Bracken `database150mers.kmer_distrib` file.
-* The corresponding frozen **NCBI nodes.dmp and names.dmp**. The workflow checks
-  the database root or its `taxonomy/` subdirectory automatically; supply
-  `--taxonomy_dir` when those files are elsewhere.
+* The **Kraken2/Bracken Standard 20251015 database and matching taxonomy** are
+  downloaded automatically in the `PREPARE_KRAKEN` Nextflow process. The archive
+  contains the 150 bp Bracken distribution and the frozen `nodes.dmp` and
+  `names.dmp`; a separate current taxonomy download is not used.
+  The published MD5 manifest is pinned by SHA256, and each retained file is
+  verified against its published MD5 while being extracted. The script streams
+  the archive and saves only the four database files and two taxonomy files
+  needed here. Approximately 72.5 GB are transferred; the database needs about
+  94 GB plus taxonomy/Bracken storage. Allow additional space for ENA reads,
+  Conda environments and analysis intermediates. Source:
+  https://benlangmead.github.io/aws-indexes/k2
+
+The downloaded database stays in the Nextflow task's `work/` directory, where
+all samples reuse it. `-resume` reuses that task on subsequent runs; keep `work/`
+and the Nextflow cache. It is not copied into the Git repository or manuscript
+outputs. Download URLs, published MD5 values and measured SHA256 values are
+recorded in `results/manuscript/provenance/kraken_database.json`.
+
+To use existing local resources instead of downloading them:
+
+```bash
+nextflow run main.nf -profile conda \
+  --kraken_db /absolute/path/k2_standard_20251015 \
+  --taxonomy_dir /absolute/path/matching_taxdump \
+  --outdir results -resume
+```
+
+With local resources, the taxonomy path is optional if `nodes.dmp` and
+`names.dmp` are at the database root or in its `taxonomy/` subdirectory.
+For another frozen archive, override all three parameters `--kraken_url`,
+`--kraken_checksums_url` and `--kraken_manifest_sha256` together.
 
 MEGARes 3.00, crAssphage NC_024711.1 and the pinned AMR++ SNP verification
 resources are retrieved automatically. To reuse local resources, set
@@ -75,7 +100,8 @@ mapping; it does not replace live retrieval of URLs and checksums.
 
 ## Analysis stages
 
-1. Resolve the explicit ENA run crosswalk, require paired FASTQs and validate
+1. Download and verify the frozen Kraken2/Bracken database and matching taxonomy
+   (or reuse local inputs). Resolve the explicit ENA run crosswalk, require paired FASTQs and validate
    downloaded MD5 checksums. Single-run filters use symlinks; multiple runs are
    concatenated in matched mate order.
 2. FastQC, fastp (Q20, at most 20% unqualified bases, at most five Ns, length

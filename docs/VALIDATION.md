@@ -38,3 +38,14 @@ alignment/SNP/classification tests use deliberately small synthetic data. A
 successful Conda solve does not prove every package archive can be downloaded
 on every host. Keep runtime versions/checksums and inspect the first production
 run before interpreting study-specific outcomes.
+
+## Automatic Kraken2/Bracken resources
+
+The Standard 20251015 published checksum manifest was retrieved and pinned by
+SHA256. Offline tests exercise the complete download/extraction helper using a
+small local archive: matching taxonomy, published file checksums, changed
+manifest rejection, corrupted content, missing taxonomy and symlink rejection.
+The new Nextflow download process is also executed with a synthetic archive.
+Full-workflow stubs cover both automatic download and local-resource branches.
+The production 72.5 GB archive and complete ENA study were not downloaded for
+this validation. The production files remain checked at execution time.

@@ -1,3 +1,29 @@
+process PREPARE_KRAKEN {
+    label 'small'
+    time '168h'
+    input:
+    val archive_url
+    val checksums_url
+    val manifest_sha256
+    output:
+    path 'kraken_database', emit: database
+    path 'kraken_taxonomy', emit: taxonomy
+    path 'kraken_database.json', emit: provenance
+    script:
+    """
+    prepare_kraken.py --url '${archive_url}' --checksums-url '${checksums_url}' \
+      --manifest-sha256 '${manifest_sha256}' --database kraken_database \
+      --taxonomy kraken_taxonomy --provenance kraken_database.json
+    """
+    stub:
+    """
+    mkdir kraken_database kraken_taxonomy
+    touch kraken_database/hash.k2d kraken_database/opts.k2d kraken_database/taxo.k2d
+    touch kraken_database/database150mers.kmer_distrib kraken_taxonomy/nodes.dmp kraken_taxonomy/names.dmp
+    echo '{"stub":true}' > kraken_database.json
+    """
+}
+
 process PREPARE_RESOURCES {
     label 'small'
     input:

@@ -17,6 +17,10 @@ Tables S2 and S3 are not generated. Original table numbering is retained for
 the data-derived tables. Software versions, R packages and reference checksums
 are saved under `provenance/`, outside the manuscript tables.
 
+`provenance/kraken_database.json` records the automatic database download URLs,
+pinned checksum manifest and verified file hashes. The downloaded database
+and taxonomy remain in the cached Nextflow task under `work/`.
+
 Additional TSVs retain community profiles, broad per-filter counts, diversity,
 network node/edge selections, CARPDM means/intervals and heatmap pseudocounts.
 Different components of one supplementary table remain separate TSVs, preserving

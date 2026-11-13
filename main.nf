@@ -1,6 +1,6 @@
 nextflow.enable.dsl=2
 include { RESOLVE_ENA; DOWNLOAD; MERGE_READS; FASTQC; FASTP; MULTIQC } from './modules/reads'
-include { PREPARE_RESOURCES; BUILD_BWA; BUILD_BOWTIE; MAP_BROAD; VERIFY_SNPS; MAP_SCREEN; KRAKEN; LINK_READS; BRACKEN; ASSEMBLE_TABLES; REPORT } from './modules/analysis'
+include { PREPARE_KRAKEN; PREPARE_RESOURCES; BUILD_BWA; BUILD_BOWTIE; MAP_BROAD; VERIFY_SNPS; MAP_SCREEN; KRAKEN; LINK_READS; BRACKEN; ASSEMBLE_TABLES; REPORT } from './modules/analysis'
 
 workflow {
     if (!(params.mode in ['full','download'])) error 'mode must be full or download'
@@ -9,18 +9,26 @@ workflow {
     def resources=Channel.empty()
     def database=null
     def taxonomy=null
+    def krakenProvenance=Channel.empty()
     if(params.mode=='full') {
-        if(!workflow.stubRun && (!params.carpdm_fasta || !params.kraken_db)) {
-            error 'Supply --kraken_db; CARPDM defaults to data/carpdm_genes.fna.gz (override with --carpdm_fasta)'
-        }
+        if(!workflow.stubRun && !params.carpdm_fasta) error 'Supply --carpdm_fasta or use data/carpdm_genes.fna.gz'
         def carp=file(workflow.stubRun ? "${projectDir}/tests/reference.fa" : params.carpdm_fasta,checkIfExists:true)
-        database=file(params.kraken_db ?: "${projectDir}/tests",checkIfExists:true)
-        def taxPath=params.taxonomy_dir ?: (file("${database}/nodes.dmp").exists() ? database : "${database}/taxonomy")
-        taxonomy=file(workflow.stubRun ? "${projectDir}/tests" : taxPath,checkIfExists:true)
-        if(!workflow.stubRun) {
-            ['hash.k2d','opts.k2d','taxo.k2d','database150mers.kmer_distrib'].each { name ->
-                if(!file("${database}/${name}").exists()) error "Kraken2/Bracken database missing ${name}"
+        if(params.kraken_db) {
+            database=Channel.value(file(params.kraken_db,checkIfExists:true))
+            def localDb=file(params.kraken_db,checkIfExists:true)
+            def taxPath=params.taxonomy_dir ?: (file("${localDb}/nodes.dmp").exists() ? localDb : "${localDb}/taxonomy")
+            taxonomy=Channel.value(file(workflow.stubRun ? "${projectDir}/tests" : taxPath,checkIfExists:true))
+            if(!workflow.stubRun) {
+                ['hash.k2d','opts.k2d','taxo.k2d','database150mers.kmer_distrib'].each { name ->
+                    if(!file("${localDb}/${name}").exists()) error "Kraken2/Bracken database missing ${name}"
+                }
             }
+        } else {
+            if(params.taxonomy_dir) error '--taxonomy_dir requires --kraken_db; automatic download includes matching taxonomy'
+            PREPARE_KRAKEN(params.kraken_url,params.kraken_checksums_url,params.kraken_manifest_sha256)
+            krakenProvenance=PREPARE_KRAKEN.out.provenance
+            database=PREPARE_KRAKEN.out.database
+            taxonomy=PREPARE_KRAKEN.out.taxonomy
         }
         def absent=file("${projectDir}/assets/NO_INPUT")
         PREPARE_RESOURCES(carp,params.megares_fasta?file(params.megares_fasta,checkIfExists:true):absent,
@@ -52,7 +60,7 @@ workflow {
         BRACKEN(LINK_READS.out.community,database)
         artifacts=FASTP.out.json.mix(FASTP.out.versions,MAP_BROAD.out.versions,KRAKEN.out.versions,
             MAP_SCREEN.out.samples.map { id,label,bam,metrics -> metrics },VERIFY_SNPS.out.counts,
-            VERIFY_SNPS.out.status,LINK_READS.out.links,BRACKEN.out.species,BRACKEN.out.versions,PREPARE_RESOURCES.out).collect()
+            VERIFY_SNPS.out.status,LINK_READS.out.links,BRACKEN.out.species,BRACKEN.out.versions,PREPARE_RESOURCES.out,krakenProvenance).collect()
         ASSEMBLE_TABLES(artifacts,filters,file("${projectDir}/data",checkIfExists:true))
         REPORT(ASSEMBLE_TABLES.out,file("${projectDir}/analysis/report.R"))
     }

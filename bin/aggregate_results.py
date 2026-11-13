@@ -149,6 +149,8 @@ def assemble(filters_path,inputs,metadata,outdir):
         record=json.loads(path.read_text())
         write_tsv(out/'provenance/reference_checksums.tsv',
             [dict(resource=k,sha256=v) for k,v in record.get('sha256',{}).items()],['resource','sha256'])
+    for path in inputs.rglob('kraken_database.json'):
+        shutil.copyfile(path,out/'provenance/kraken_database.json')
     shutil.copyfile(metadata/'candidate_genera.txt',out/'candidate_genera.txt')
 
 
