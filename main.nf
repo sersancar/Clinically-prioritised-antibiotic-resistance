@@ -11,9 +11,9 @@ workflow {
     def taxonomy=null
     if(params.mode=='full') {
         if(!workflow.stubRun && (!params.carpdm_fasta || !params.kraken_db)) {
-            error 'Supply --carpdm_fasta and --kraken_db; no historical scripts/configurations are required'
+            error 'Supply --kraken_db; CARPDM defaults to data/carpdm_genes.fna.gz (override with --carpdm_fasta)'
         }
-        def carp=file(params.carpdm_fasta ?: "${projectDir}/tests/reference.fa",checkIfExists:true)
+        def carp=file(workflow.stubRun ? "${projectDir}/tests/reference.fa" : params.carpdm_fasta,checkIfExists:true)
         database=file(params.kraken_db ?: "${projectDir}/tests",checkIfExists:true)
         def taxPath=params.taxonomy_dir ?: (file("${database}/nodes.dmp").exists() ? database : "${database}/taxonomy")
         taxonomy=file(workflow.stubRun ? "${projectDir}/tests" : taxPath,checkIfExists:true)
@@ -53,7 +53,7 @@ workflow {
         artifacts=FASTP.out.json.mix(FASTP.out.versions,MAP_BROAD.out.versions,KRAKEN.out.versions,
             MAP_SCREEN.out.samples.map { id,label,bam,metrics -> metrics },VERIFY_SNPS.out.counts,
             VERIFY_SNPS.out.status,LINK_READS.out.links,BRACKEN.out.species,BRACKEN.out.versions,PREPARE_RESOURCES.out).collect()
-        ASSEMBLE_TABLES(artifacts,filters,file("${projectDir}/metadata"))
+        ASSEMBLE_TABLES(artifacts,filters,file("${projectDir}/data",checkIfExists:true))
         REPORT(ASSEMBLE_TABLES.out,file("${projectDir}/analysis/report.R"))
     }
 }

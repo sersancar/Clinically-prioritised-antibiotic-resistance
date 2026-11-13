@@ -1,4 +1,5 @@
 import csv
+import gzip
 import io
 import json
 import os
@@ -17,13 +18,25 @@ from download_fastq import download
 from aggregate_results import assemble
 from link_reads import support_score,taxid_from_label,kraken_report
 from make_fixture import make
+from resources import copy_fasta
 
 
 class Methods(unittest.TestCase):
+    def test_reference_decompression_after_staging(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d=Path(tmp);payload=b'>ref|sul2\nACGTACGT\n'
+            staged=d/'input_carpdm.fa'
+            staged.write_bytes(gzip.compress(payload))
+            copy_fasta(staged,d/'carpdm.fa')
+            self.assertEqual((d/'carpdm.fa').read_bytes(),payload)
+            staged.write_bytes(payload)
+            copy_fasta(staged,d/'plain.fa')
+            self.assertEqual((d/'plain.fa').read_bytes(),payload)
+
     def test_design_and_mapping(self):
-        filters=read_tsv(ROOT/'metadata/filters.tsv');groups=validate_filters(filters)
+        filters=read_tsv(ROOT/'data/filters.tsv');groups=validate_filters(filters)
         self.assertEqual(len(groups),20);self.assertEqual(sum(r['site']=='C' for r in filters),6)
-        resolved=resolve(filters,read_tsv(ROOT/'metadata/ena_PRJEB75359_2026-11-12.tsv'))
+        resolved=resolve(filters,read_tsv(ROOT/'data/ena_PRJEB75359_2026-11-12.tsv'))
         self.assertEqual(len(resolved),60)
         with self.assertRaises(ValueError):validate_filters(filters[:-1])
 
@@ -56,7 +69,9 @@ class Methods(unittest.TestCase):
     def test_pooling_and_sensitivity(self):
         with tempfile.TemporaryDirectory() as tmp:
             d=Path(tmp);make(ROOT,d/'inputs')
-            assemble(ROOT/'metadata/filters.tsv',d/'inputs',ROOT/'metadata',d/'data')
+            assemble(ROOT/'data/filters.tsv',d/'inputs',ROOT/'data',d/'data')
+            self.assertFalse(list((d/'data/tables').glob('TableS[23]_*.tsv')))
+            self.assertTrue((d/'data/provenance/software_versions.tsv').exists())
             rows=read_tsv(d/'data/tables/TableS5_CARPDM_biological.tsv')
             bio=[r for r in rows if r['biosample']=='A_2021-03-29']
             primary=[r for r in bio if r['screen']=='primary'];relaxed=[r for r in bio if r['screen']=='relaxed']
@@ -74,7 +89,7 @@ class Methods(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             d=Path(tmp);make(ROOT,d/'inputs');(d/'inputs/A_1_290321.carpdm.metrics.tsv').unlink()
             with self.assertRaisesRegex(ValueError,'every filter'):
-                assemble(ROOT/'metadata/filters.tsv',d/'inputs',ROOT/'metadata',d/'data')
+                assemble(ROOT/'data/filters.tsv',d/'inputs',ROOT/'data',d/'data')
 
 
 try:import pysam

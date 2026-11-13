@@ -260,4 +260,5 @@ writeLines(c('All statistics use 20 biological site–date samples, not 60 indep
  paste('Seed:',seed,'; requested date-restricted permutations:',nperm)),file.path(out,'INTERPRETATION.txt'))
 capture.output(sessionInfo(),file=file.path(out,'sessionInfo.txt'))
 packages<-c('vegan','permute','ggplot2','patchwork','readr','dplyr','tidyr','VennDiagram')
-save_tab(tibble(component=c('R',packages),version=c(as.character(getRversion()),vapply(packages,function(p)as.character(packageVersion(p)),character(1)))),'TableS3_R_packages')
+dir.create(file.path(out,'provenance'),showWarnings=FALSE)
+write_tsv(tibble(component=c('R',packages),version=c(as.character(getRversion()),vapply(packages,function(p)as.character(packageVersion(p)),character(1)))),file.path(out,'provenance','R_packages.tsv'))

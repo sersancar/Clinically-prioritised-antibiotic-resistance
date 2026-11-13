@@ -3,8 +3,6 @@
 | Output prefix | Content |
 |---|---|
 | TableS1 | Filter metadata, biological correspondence, runtime denominators, environmental values |
-| TableS2 | Curated previous-study context |
-| TableS3 | Runtime tools/R packages and reference checksums |
 | TableS4 | Complete CARPDM per-filter reference measurements, primary/relaxed flags |
 | TableS5 | CARPDM biological counts, support, RPM/RPKM under both screens |
 | TableS6 | Site/study threshold sensitivity, with target/reference counting units distinguished |
@@ -14,6 +12,10 @@
 | TableS10 | PERMANOVA, dispersion, Friedman, exact contrasts and depth correlations |
 | TableS11 | Partial RDAs, predictor audit and tidal context |
 | TableS12 | Marker filter measurements, biological RPM and site summaries |
+
+Tables S2 and S3 are not generated. Original table numbering is retained for
+the data-derived tables. Software versions, R packages and reference checksums
+are saved under `provenance/`, outside the manuscript tables.
 
 Additional TSVs retain community profiles, broad per-filter counts, diversity,
 network node/edge selections, CARPDM means/intervals and heatmap pseudocounts.

@@ -28,7 +28,6 @@ def assemble(filters_path,inputs,metadata,outdir):
         row={k:v for k,v in rows[0].items() if k not in ['filter_id','replicate','run_accession','expected_post_qc_read_ends']}
         row.update(total_read_ends=totals[bio],filters=len(rows));bio_meta.append(row)
     write_tsv(tables/'TableS1_biological.tsv',bio_meta)
-    shutil.copyfile(metadata/'historical_context.tsv',tables/'TableS2_historical_context.tsv')
     classes={r['gene']:r['class'] for r in read_tsv(metadata/'carpdm_gene_classes.tsv')}
     carp=[];broad=[];marker=[];seen=set()
     for kind,pattern,target in [('carpdm','*.carpdm.metrics.tsv',carp),('broad','*.broad.counts.tsv',broad),('crass','*.crass.metrics.tsv',marker)]:
@@ -141,14 +140,14 @@ def assemble(filters_path,inputs,metadata,outdir):
     for path in inputs.rglob('*.versions.json'):
         record=json.loads(path.read_text())
         for tool,version in record.items():versions.append(dict(component=tool,version=version,source=path.name))
-    write_tsv(tables/'TableS3_software.tsv',versions,['component','version','source'])
     (out/'provenance').mkdir(exist_ok=True)
+    write_tsv(out/'provenance/software_versions.tsv',versions,['component','version','source'])
     statuses=[json.loads(p.read_text()) for p in inputs.rglob('*.snp_status.json')]
     if statuses:write_tsv(out/'provenance/SNP_verification_status.tsv',statuses)
     for path in inputs.rglob('resource_provenance.json'):
         shutil.copyfile(path,out/'provenance/reference_resources.json')
         record=json.loads(path.read_text())
-        write_tsv(tables/'TableS3_reference_checksums.tsv',
+        write_tsv(out/'provenance/reference_checksums.tsv',
             [dict(resource=k,sha256=v) for k,v in record.get('sha256',{}).items()],['resource','sha256'])
     shutil.copyfile(metadata/'candidate_genera.txt',out/'candidate_genera.txt')
 

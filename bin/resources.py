@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Prepare versioned reference resources before any sequencing download."""
 import argparse
+import gzip
 import json
 import shutil
 import subprocess
@@ -17,12 +18,21 @@ def retrieve(url,destination):
         shutil.copyfileobj(response,f)
 
 
+def copy_fasta(source,destination):
+    """Write plain FASTA, detecting gzip even after Nextflow renames the input."""
+    with open(source,'rb') as probe:
+        compressed=probe.read(2)==b'\x1f\x8b'
+    opener=gzip.open if compressed else open
+    with opener(source,'rb') as src,open(destination,'wb') as dst:
+        shutil.copyfileobj(src,dst)
+
+
 def prepare(carpdm,megares,crass,snp_bundle,taxonomy,out):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);sources={}
     for name,source in [('carpdm',carpdm),('megares',megares),('crass',crass)]:
         dest=out/(name+'.fa')
         if source and Path(source).name!='NO_INPUT':
-            shutil.copyfile(source,dest);sources[name]=str(Path(source).resolve())
+            copy_fasta(source,dest);sources[name]=str(Path(source).resolve())
         elif name=='megares':
             url=f'https://raw.githubusercontent.com/Microbial-Ecology-Group/AMRplusplus/{AMR_COMMIT}/data/amr/megares_database_v3.00.fasta'
             retrieve(url,dest);sources[name]=url

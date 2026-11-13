@@ -9,7 +9,7 @@ from common import read_tsv,write_tsv
 
 
 def make(root,out,empty_carpdm=False):
-    out=Path(out);out.mkdir(parents=True,exist_ok=True);filters=read_tsv(root/'metadata/filters.tsv')
+    out=Path(out);out.mkdir(parents=True,exist_ok=True);filters=read_tsv(root/'data/filters.tsv')
     refs=[f'MEG_{i}|Drugs|'+('MLS' if i%2 else 'Tetracyclines')+f'|Mechanism|gene{i}' for i in range(1,13)]
     carp=['gb|example|+|1-1000|ARO:1|sul2','gb|example|+|1-1000|ARO:2|tet(O)']
     tax_fields=['filter_id','catalogue','reference','association_count','taxid','name','rank','domain','lineage','phylum','class','order','family','genus','species','taxon','taxon_id','taxon_rank']
