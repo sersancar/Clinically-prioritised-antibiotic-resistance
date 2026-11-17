@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import http.client
 import os
+import ssl
 import sys
 import time
 import urllib.error
@@ -46,15 +47,16 @@ def download(url, expected, destination):
                     while chunk:=response.read(8*1024*1024):
                         digest.update(chunk);out.write(chunk)
                 if digest.hexdigest().lower()!=expected.lower():
-                    raise ValueError(f'MD5 mismatch for {destination.name}')
+                    raise ValueError(f'MD5 mismatch for {destination.name}: expected {expected.lower()}, got {digest.hexdigest()}')
                 os.replace(temporary,destination)
                 print(f'Verified {destination.name}',flush=True)
                 return
-            except (urllib.error.URLError,TimeoutError,ConnectionError,http.client.HTTPException,ValueError) as exc:
+            except (urllib.error.URLError,TimeoutError,ConnectionError,ssl.SSLError,http.client.HTTPException,ValueError) as exc:
                 failures.append(f'{address}: {type(exc).__name__}: {exc}')
                 print(f'Download attempt failed: {failures[-1]}',file=sys.stderr,flush=True)
                 # Protocol/permission errors need another transport, not an
                 # immediate repeat of the same forbidden URL.
+                if isinstance(exc,(ssl.SSLError,ValueError)):break
                 if isinstance(exc,urllib.error.HTTPError) and exc.code not in [408,429,500,502,503,504]:break
                 if attempt==0:time.sleep(2)
             finally:
