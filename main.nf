@@ -40,11 +40,18 @@ workflow {
         BUILD_BOWTIE(PREPARE_RESOURCES.out.flatMap { r -> [tuple('carpdm',r.resolve('carpdm.fa')),tuple('crass',r.resolve('crass.fa'))] })
     }
     RESOLVE_ENA(filters,ready)
-    downloads=RESOLVE_ENA.out.downloads.splitCsv(header:true,sep:'\t').map { r ->
-        tuple(r.filter_id,r.run_accession,r.url1,r.url2,r.md5_1,r.md5_2)
+    // Only the small ENA manifest is collected; downloaded FASTQs stay streaming.
+    def enaRows=RESOLVE_ENA.out.downloads.splitCsv(header:true,sep:'\t').collect(flat:false)
+    def runsByFilter=enaRows.map { rows -> rows.countBy { r -> r.filter_id } }
+    downloads=enaRows.flatMap { rows ->
+        rows.collect { r -> tuple(r.filter_id,r.run_accession,r.url1,r.url2,r.md5_1,r.md5_2) }
     }
     DOWNLOAD(downloads)
-    MERGE_READS(DOWNLOAD.out.groupTuple())
+    def readyFilters=DOWNLOAD.out.combine(runsByFilter)
+        .map { id,mate1,mate2,counts -> tuple(groupKey(id,counts[id] as int),mate1,mate2) }
+        .groupTuple()
+        .map { key,mates1,mates2 -> tuple(key.getGroupTarget(),mates1,mates2) }
+    MERGE_READS(readyFilters)
     if(params.mode=='download') {
         MERGE_READS.out.view { id,reads -> "Verified paired FASTQs for ${id}: ${reads}" }
     } else {
