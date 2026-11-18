@@ -177,8 +177,11 @@ process KRAKEN {
     tuple val(id),path("${id}.kraken.tsv"),emit:classifications
     path '*.versions.json',emit:versions
     script:
+    def mappingValue=params.kraken_memory_mapping.toString().toLowerCase()
+    if (!(mappingValue in ['true','false'])) error '--kraken_memory_mapping must be true or false'
+    def mappingArg=mappingValue=='true' ? '--memory-mapping' : ''
     """
-    kraken2 --db '${database}' --paired --gzip-compressed --threads ${task.cpus} \
+    kraken2 --db '${database}' ${mappingArg} --paired --gzip-compressed --threads ${task.cpus} \
       --output ${id}.kraken.tsv '${reads[0]}' '${reads[1]}'
     software_versions.py --output ${id}.taxonomy.versions.json kraken2
     """

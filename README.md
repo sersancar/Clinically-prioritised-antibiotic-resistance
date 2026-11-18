@@ -31,8 +31,33 @@ nextflow run main.nf -profile conda \
 ```
 
 For Slurm use `-profile conda,slurm`; set your partition/account in a local
-Nextflow configuration. Kraken2 requests 128 GB by default; adjust with
-`--kraken_memory '64 GB'` or a suitable value for your database/host.
+Nextflow configuration. Kraken2 defaults are configured in `nextflow.config`:
+
+```groovy
+params {
+    kraken_memory = '48 GB'
+    kraken_memory_mapping = true
+}
+```
+
+`kraken_memory` is the Nextflow scheduling request. Under the local executor it
+is not a hard operating-system memory limit. `kraken_memory_mapping = true`
+adds Kraken2's `--memory-mapping` flag, avoiding upfront loading of the entire
+database into process-local RAM. Disk-backed access may be much slower when the
+database does not fit in RAM; fast local SSD storage is preferable.
+
+Override the defaults at launch, for example on a host with enough RAM to load
+the full Standard database:
+
+```bash
+nextflow run main.nf -profile conda \
+  --kraken_memory '128 GB' --kraken_memory_mapping false \
+  --outdir results -resume
+```
+
+Keep memory mapping enabled for the full Standard database on the 64 GB host.
+Use unquoted booleans `true`/`false` in the configuration; CLI true/false values
+are also accepted. Other memory-mapping values are rejected explicitly.
 The Slurm profile keeps reference preparation and network downloads on the
 controller host, while computational stages run as cluster jobs.
 
